@@ -77,14 +77,14 @@ def getGreenLight (original, templateShape, processingFunction):
 	matches = list(map(lambda x: (x, cv2.matchShapes(x, templateShape, 1, 0.0)), probableContours))
 	matches.sort(key = lambda x: x[1])
 	
-	if len(matches) > 0:
-
-		#debug
+	#debug
+	if len(matches > 0):
 		print(matches[0][1])
 		bestContours = list(map(lambda x: x[0], matches[:1]))
 		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
-		cv2.imshow('frame', original)
+	cv2.imshow('coloredOriginal', original)
 
+	if len(matches) > 0:
 		if matches[0][1] < 0.5:
 			return True
 		else:
