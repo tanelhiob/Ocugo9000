@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import sys
 import time
+import math
 import platform
 from buzzer import Buzzer
 
@@ -21,6 +22,7 @@ red = (0, 0, 255)
 green = (0, 255, 0)
 
 buzzer = Buzzer(18, 50, 1, 0.5)
+coordinates = [(0,0)] * 10
 
 def createTemplateShape ():
 
@@ -87,8 +89,20 @@ def getGreenLight (original, templateShape, processingFunction):
 	
 	#debug
 	if len(matches) > 0 and matches[0][1] < 0.5:
-		print(matches[0][1])
 		bestContours = list(map(lambda x: x[0], matches[:1]))
+		M = cv2.moments(bestContours[0])
+		cX = int(M['m10'] / M['m00'])
+		cY = int(M['m01'] / M['m00'])
+		currXY = (cX,cY)
+		for i in range(len(coordinates)-1):
+			coordinates[i+1] = coordinates[i]
+		coordinates[0] = currXY
+		
+		avgX = float(sum(map(lambda (x,y): x, coordinates)) / len(coordinates))
+		avgY = float(sum(map(lambda (x,y): y, coordinates)) / len(coordinates))
+		distance = math.hypot(currXY[0] - avgX, currXY[1] - avgY)
+		if distance > 50:
+			return False 
 		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
 	cv2.imshow('coloredOriginal', original)
 
@@ -102,11 +116,13 @@ def getGreenLight (original, templateShape, processingFunction):
 
 
 def actionOnGreenLight ():
+#	print('#####')
 	buzzer.start()
 	return
 
 
 def actionOnNotFound ():
+#	print('-----')
 	buzzer.stop()
 	return
 
@@ -114,13 +130,19 @@ def actionOnNotFound ():
 cap = cv2.VideoCapture(0)
 templateShape = createTemplateShape()
 
+smoothing = [0] * 15
 while(True):
 	_, frame = cap.read()
 	isGreenLight = getGreenLight(frame, templateShape, processFrameForCamera)
 
 	#isGreenLight = getGreenLight(cv2.imread('TrainingImages\\foor-1.jpeg'), templateShape, processFrameForTrainingImages)
-
-	if isGreenLight:
+	for i in range(len(smoothing)-1):
+		smoothing[i+1] = smoothing[i]
+	smoothing[0] = isGreenLight
+		
+	isSmooth = round((float(sum(smoothing)) / len(smoothing)),0) == 1  
+	
+	if isSmooth:
 		actionOnGreenLight()
 #		time.sleep(0.5)
 	else:
