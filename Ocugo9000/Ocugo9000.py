@@ -10,11 +10,14 @@ import platform
 #VIOLET 160
 #RED 179
 
-print('OpenCV version: {0}'.format(cv2.__version__))
+#debug
+# print(cv2.__version__)
+
 isPi =  not platform.system() == 'Windows'
 
 red = (0, 0, 255)
 green = (0, 255, 0)
+
 
 def createTemplateShape ():
 
@@ -75,7 +78,7 @@ def getGreenLight (original, templateShape, processingFunction):
 	else:
 		_, contours, _ = cv2.findContours(frame,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	
-	probableContours = list(filter(lambda x: x.size > 90, contours))
+	probableContours = list(filter(lambda x: x.size > 50, contours))
 	matches = list(map(lambda x: (x, cv2.matchShapes(x, templateShape, 1, 0.0)), probableContours))
 	matches.sort(key = lambda x: x[1])
 	
