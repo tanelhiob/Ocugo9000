@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import sys
 import platform
+from buzzer import Buzzer
 
 #ORANGE 22
 #YELLOW 38
@@ -18,6 +19,7 @@ isPi =  not platform.system() == 'Windows'
 red = (0, 0, 255)
 green = (0, 255, 0)
 
+buzzer = Buzzer(18, 432, 0.75, 0.5)
 
 def createTemplateShape ():
 
@@ -99,10 +101,12 @@ def getGreenLight (original, templateShape, processingFunction):
 
 
 def actionOnGreenLight ():
+	buzzer.start()
 	return
 
 
 def actionOnNotFound ():
+	buzzer.stop()
 	return
 
 
