@@ -3,8 +3,8 @@ import numpy as np
 
 cap = cv2.VideoCapture(0)
 
-while(1):
-
+def getGreenLight (cap):
+	
 	# Take each frame
 	_, frame = cap.read()
 
@@ -30,6 +30,24 @@ while(1):
 	cv2.imshow('frame',frame)
 	cv2.imshow('mask',mask)
 	cv2.imshow('res',dilation)
+
+	return False
+
+def actionOnGreenLight ():
+	return
+
+def actionOntFound ():
+	return
+	
+while(1):
+
+	isGreenLight = getGreenLight(cap)
+
+	if isGreenLight:
+		actionOnGreenLight()
+	else:
+		actionOntFound()
+
 	k = cv2.waitKey(5) & 0xFF
 	if k == 27:
 	    break
