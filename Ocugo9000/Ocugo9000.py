@@ -16,7 +16,7 @@ doProcessing = True
 
 lower2 = np.array([0,0,5])
 upper2 = np.array([179,255,255])
-shape = cv2.imread('./foor-uus.jpg')
+shape = cv2.imread('./sabloon.jpg')
 hsv = cv2.cvtColor(shape, cv2.COLOR_BGR2HSV)
 mask = cv2.inRange(hsv, lower2, upper2)
 res2 = cv2.bitwise_and(shape,shape, mask= mask)
@@ -34,13 +34,14 @@ def getGreenLight (cap):
 	# Take each frame
 	_, frame = cap.read()
 
-	#frame = cv2.imread('./p2ris-foor.jpeg')
+	#frame = cv2.imread('./foor-4.jpeg')
 
 	# Convert BGR to HSV
 	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
 	# define range of blue color in HSV
-	#lower = np.array([70,50,25])
+	# hue, sat, bright
+	#lower = np.array([70,85,50])
 	#upper = np.array([95,255,255])
 	lower = np.array([70,150,50])
 	upper = np.array([95,255,255])
@@ -62,9 +63,9 @@ def getGreenLight (cap):
 	
 	#print(len(cntCam))
 
-	probableContours = list(filter(lambda x: x.size > 100, cntCam))
+	probableContours = list(filter(lambda x: x.size > 25, cntCam))
 
-	matches = list(map(lambda x: (x, cv2.matchShapes(x, cntCompare[0], 1, 0.0)), cntCam))
+	matches = list(map(lambda x: (x, cv2.matchShapes(x, cntCompare[0], 1, 0.0)), probableContours))
 	#match = cv2.matchShapes(cntCam[0],cntCompare[0],1,0.0)
 	#print(matches)
 
@@ -82,7 +83,8 @@ def getGreenLight (cap):
 		print(matches[0][1])
 		cv2.drawContours(res, matches[0][0],-1,(0,0,255),1)
 	cv2.drawContours(shape,cntCompare,-1,(0,0,255),1)
-	cv2.imshow('compare', shape)
+	#cv2.imshow('shape', shape)
+	cv2.imshow('frame', frame)
 	cv2.imshow('res', res)
 
 	#cv2.imshow('frame',frame)
