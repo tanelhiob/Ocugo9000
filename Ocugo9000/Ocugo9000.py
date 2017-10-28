@@ -32,18 +32,18 @@ cap = cv2.VideoCapture(0)
 def getGreenLight (cap):
 	
 	# Take each frame
-	#_, frame = cap.read()
+	_, frame = cap.read()
 
-	frame = cv2.imread('./p2ris-foor.jpeg')
+	#frame = cv2.imread('./p2ris-foor.jpeg')
 
 	# Convert BGR to HSV
 	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
 	# define range of blue color in HSV
-	lower = np.array([70,50,25])
-	upper = np.array([95,255,255])
-	#lower = np.array([70,150,50])
+	#lower = np.array([70,50,25])
 	#upper = np.array([95,255,255])
+	lower = np.array([70,150,50])
+	upper = np.array([95,255,255])
 
 	# Threshold the HSV image to get only specified colors
 	mask = cv2.inRange(hsv, lower, upper)
@@ -51,9 +51,9 @@ def getGreenLight (cap):
 	# Bitwise-AND mask and original image
 	res = cv2.bitwise_and(frame,frame, mask= mask)
 
-	#kernel2 = np.ones((2,2),np.uint8)
-	#res = cv2.erode(res,kernel2,iterations = 1)
-	#res = cv2.dilate(res,kernel2,iterations = 1)
+	kernel2 = np.ones((2,2),np.uint8)
+	res = cv2.erode(res,kernel2,iterations = 1)
+	res = cv2.dilate(res,kernel2,iterations = 1)
 
 	res = cv2.medianBlur(res, 1)
 
