@@ -49,8 +49,8 @@ def createTemplateShape ():
 
 def processFrameForCamera(frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	lower = np.array([35,0,60])
-	upper = np.array([55,255,255])
+	lower = np.array([45,20,40])
+	upper = np.array([75,255,255])
 	mask = cv2.inRange(frame, lower, upper)
 	frame = cv2.bitwise_and(frame, frame, mask = mask)
 	kernel = np.ones((1, 1), np.uint8)
@@ -83,7 +83,7 @@ def getGreenLight (original, templateShape, processingFunction):
 	matches.sort(key = lambda x: x[1])
 	
 	#debug
-	if len(matches) > 0:
+	if len(matches) > 0 and matches[0][1] < 0.5:
 		print(matches[0][1])
 		bestContours = list(map(lambda x: x[0], matches[:1]))
 		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
