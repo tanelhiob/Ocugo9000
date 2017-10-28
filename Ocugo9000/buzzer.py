@@ -36,13 +36,18 @@ class Buzzer:
 			time.sleep(self.pause_duration)
 
 	def start(self):
-		self.is_buzzing = True
-		
-		thread = threading.Thread(target = self.loop, daemon = True)
+		#self.is_buzzing = True
+		GPIO.output(self.gpin, True)
+		#time.sleep(self.speed)
+		#thread = threading.Thread(target = self.loop)
 		#thread.start()
 
 
 	def stop(self):
-		with self.lock:
-			self.is_buzzing = False
-
+		GPIO.output(self.gpin, False)
+		#with self.lock:
+		#	self.is_buzzing = False
+#		self.shutdown()
+#		GPIO.cleanup(self.gpin)
+	def cleanup(self):
+		GPIO.cleanup(self.gpin)

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import sys
+import time
 import platform
 from buzzer import Buzzer
 
@@ -19,7 +20,7 @@ isPi =  not platform.system() == 'Windows'
 red = (0, 0, 255)
 green = (0, 255, 0)
 
-buzzer = Buzzer(18, 432, 0.75, 0.5)
+buzzer = Buzzer(18, 50, 1, 0.5)
 
 def createTemplateShape ():
 
@@ -51,8 +52,8 @@ def createTemplateShape ():
 
 def processFrameForCamera(frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	lower = np.array([45,20,40])
-	upper = np.array([75,255,255])
+	lower = np.array([50,25,40])
+	upper = np.array([65,255,255])
 	mask = cv2.inRange(frame, lower, upper)
 	frame = cv2.bitwise_and(frame, frame, mask = mask)
 	kernel = np.ones((1, 1), np.uint8)
@@ -114,7 +115,6 @@ cap = cv2.VideoCapture(0)
 templateShape = createTemplateShape()
 
 while(True):
-
 	_, frame = cap.read()
 	isGreenLight = getGreenLight(frame, templateShape, processFrameForCamera)
 
@@ -122,11 +122,14 @@ while(True):
 
 	if isGreenLight:
 		actionOnGreenLight()
+#		time.sleep(0.5)
 	else:
 		actionOnNotFound()
 
 	k = cv2.waitKey(5) & 0xFF
 	if k == 27:
-	    break
+		buzzer.stop()
+		buzzer.cleanup()
+	    	break
 
 cv2.destroyAllWindows()
