@@ -44,8 +44,8 @@ def createTemplateShape ():
 		_, contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	
 	#debug
-	#cv2.drawContours(original,contours[0],-1,(0,0,255),1)
-	#cv2.imshow('contours', original)
+#	cv2.drawContours(original,contours[0],-1,(0,0,255),1)
+#	cv2.imshow('contours', original)
 
 	if not len(contours) == 1:
 		raise("template doesn't have exactly 1 contours, actual result: " + str(len(contours)))
@@ -54,7 +54,7 @@ def createTemplateShape ():
 
 def processFrameForCamera(frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	lower = np.array([50,25,40])
+	lower = np.array([50,15,25])
 	upper = np.array([65,255,255])
 	mask = cv2.inRange(frame, lower, upper)
 	frame = cv2.bitwise_and(frame, frame, mask = mask)
@@ -83,17 +83,19 @@ def getGreenLight (original, templateShape, processingFunction):
 	else:
 		_, contours, _ = cv2.findContours(frame,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	
-	probableContours = list(filter(lambda x: x.size > 50, contours))
+	probableContours = list(filter(lambda x: x.size > 25, contours))
 	matches = list(map(lambda x: (x, cv2.matchShapes(x, templateShape, 1, 0.0)), probableContours))
 	matches.sort(key = lambda x: x[1])
 	
 	#debug
-	if len(matches) > 0 and matches[0][1] < 0.5:
+	if len(matches) > 0 and matches[0][1] < 0.7:
 		bestContours = list(map(lambda x: x[0], matches[:1]))
+	
 		M = cv2.moments(bestContours[0])
 		cX = int(M['m10'] / M['m00'])
 		cY = int(M['m01'] / M['m00'])
 		currXY = (cX,cY)
+
 		for i in range(len(coordinates)-1):
 			coordinates[i+1] = coordinates[i]
 		coordinates[0] = currXY
@@ -101,17 +103,20 @@ def getGreenLight (original, templateShape, processingFunction):
 		avgX = float(sum(map(lambda (x,y): x, coordinates)) / len(coordinates))
 		avgY = float(sum(map(lambda (x,y): y, coordinates)) / len(coordinates))
 		distance = math.hypot(currXY[0] - avgX, currXY[1] - avgY)
-		if distance > 50:
-			return False 
-		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
-	cv2.imshow('coloredOriginal', original)
+		
+		if distance < 25:
+			cv2.drawContours(original, bestContours,-1,(0,0,255),1)
+			
+#	cv2.imshow('coloredOriginal', original)
 
 	if len(matches) > 0:
-		if matches[0][1] < 0.5:
+		if matches[0][1] < 0.7 and distance < 25:
 			return True
 		else:
+#			cv2.imshow('nomatch',original)
 			return False
 	else:
+#		cv2.imshow('nomatch',original)
 		return False
 
 
@@ -130,7 +135,7 @@ def actionOnNotFound ():
 cap = cv2.VideoCapture(0)
 templateShape = createTemplateShape()
 
-smoothing = [0] * 15
+smoothing = [0] * 10
 while(True):
 	_, frame = cap.read()
 	isGreenLight = getGreenLight(frame, templateShape, processFrameForCamera)
@@ -144,7 +149,7 @@ while(True):
 	
 	if isSmooth:
 		actionOnGreenLight()
-#		time.sleep(0.5)
+		time.sleep(0.1)
 	else:
 		actionOnNotFound()
 
