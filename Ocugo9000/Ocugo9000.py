@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import sys
+import platform
 
 #ORANGE 22
 #YELLOW 38
@@ -8,11 +10,10 @@ import numpy as np
 #VIOLET 160
 #RED 179
 
-isPi = False
+isPi =  not platform.system() == 'Windows'
 
 red = (0, 0, 255)
 green = (0, 255, 0)
-
 
 def createTemplateShape ():
 
@@ -78,7 +79,7 @@ def getGreenLight (original, templateShape, processingFunction):
 	matches.sort(key = lambda x: x[1])
 	
 	#debug
-	if len(matches > 0):
+	if len(matches) > 0:
 		print(matches[0][1])
 		bestContours = list(map(lambda x: x[0], matches[:1]))
 		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
