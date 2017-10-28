@@ -11,6 +11,9 @@ from buzzer import Buzzer
 #VIOLET 160
 #RED 179
 
+#debug
+# print(cv2.__version__)
+
 isPi =  not platform.system() == 'Windows'
 
 red = (0, 0, 255)
@@ -48,11 +51,11 @@ def createTemplateShape ():
 
 def processFrameForCamera(frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	lower = np.array([70,150,50])
-	upper = np.array([95,255,255])
+	lower = np.array([35,0,60])
+	upper = np.array([55,255,255])
 	mask = cv2.inRange(frame, lower, upper)
 	frame = cv2.bitwise_and(frame, frame, mask = mask)
-	kernel = np.ones((2, 2), np.uint8)
+	kernel = np.ones((1, 1), np.uint8)
 	frame = cv2.erode(frame, kernel, iterations = 1)
 	frame = cv2.dilate(frame, kernel, iterations = 1)
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -77,7 +80,7 @@ def getGreenLight (original, templateShape, processingFunction):
 	else:
 		_, contours, _ = cv2.findContours(frame,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	
-	probableContours = list(filter(lambda x: x.size > 15, contours))
+	probableContours = list(filter(lambda x: x.size > 50, contours))
 	matches = list(map(lambda x: (x, cv2.matchShapes(x, templateShape, 1, 0.0)), probableContours))
 	matches.sort(key = lambda x: x[1])
 	
