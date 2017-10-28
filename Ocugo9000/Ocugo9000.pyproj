@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>Ocugo9000</Name>
     <RootNamespace>Ocugo9000</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,9 +25,23 @@
     <Compile Include="Ocugo9000.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="contour.jpg" />
-    <Content Include="p2ris-foor.jpeg" />
-    <Content Include="p2ris-sitt-foor.jpeg" />
+    <Content Include="requirements.txt" />
+    <Content Include="sabloon.jpg" />
+    <Content Include="TrainingImages\foor-1.JPEG" />
+    <Content Include="TrainingImages\foor-11.JPEG" />
+    <Content Include="TrainingImages\foor-12.JPEG" />
+    <Content Include="TrainingImages\foor-13.JPEG" />
+    <Content Include="TrainingImages\foor-14.JPEG" />
+    <Content Include="TrainingImages\foor-2.JPEG" />
+    <Content Include="TrainingImages\foor-3.JPEG" />
+    <Content Include="TrainingImages\foor-4.JPEG" />
+    <Content Include="TrainingImages\foor-5.JPEG" />
+    <Content Include="TrainingImages\foor-7.JPEG" />
+    <Content Include="TrainingImages\foor-8.JPEG" />
+    <Content Include="TrainingImages\foor-9.JPEG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TrainingImages\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
