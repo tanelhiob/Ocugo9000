@@ -100,8 +100,8 @@ def getGreenLight (original, templateShape, processingFunction):
 			coordinates[i+1] = coordinates[i]
 		coordinates[0] = currXY
 		
-		avgX = float(sum(map(lambda (x,y): x, coordinates)) / len(coordinates))
-		avgY = float(sum(map(lambda (x,y): y, coordinates)) / len(coordinates))
+		avgX = sum(map(lambda (x,y): x, coordinates))*1.0 / len(coordinates)
+		avgY = sum(map(lambda (x,y): y, coordinates))*1.0 / len(coordinates)
 		distance = math.hypot(currXY[0] - avgX, currXY[1] - avgY)
 		
 		if distance < 25:
