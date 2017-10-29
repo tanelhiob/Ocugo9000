@@ -83,7 +83,7 @@ def getGreenLight (original, templateShape, processingFunction):
 	else:
 		_, contours, _ = cv2.findContours(frame,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 	
-	probableContours = list(filter(lambda x: x.size > 10, contours))
+	probableContours = list(filter(lambda x: x.nbytes > 100, contours))
 	matches = list(map(lambda x: (x, cv2.matchShapes(x, templateShape, cv2.cv.CV_CONTOURS_MATCH_I3, 1)), probableContours))
 	matches.sort(key = lambda x: x[1])
 	
@@ -110,7 +110,7 @@ def getGreenLight (original, templateShape, processingFunction):
 	cv2.imshow('coloredOriginal', original)
 
 	if len(matches) > 0:
-		if matches[0][1] < 1: # and distance < 25:
+		if matches[0][1] < 0.37: # and distance < 25:
 			return True
 		else:
 #			cv2.imshow('nomatch',original)
@@ -133,6 +133,8 @@ def actionOnNotFound ():
 
 
 cap = cv2.VideoCapture(0)
+cap.set(12, 0.5)
+#cap.set(13, 25)
 templateShape = createTemplateShape()
 
 smoothing = [0] * 20
@@ -163,4 +165,6 @@ while(True):# and time.time() < t_dur):
 	    	break
 
 #print('counter = ' + str(counter))
+cap.set(cv2.cv.CV_CAP_PROP_SETTINGS,0.0);
+cv2.VideoCapture(0).release()
 cv2.destroyAllWindows()
