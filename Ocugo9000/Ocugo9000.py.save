@@ -39,9 +39,9 @@ def createTemplateShape ():
 	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 	if isPi:
-		contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+		contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	else:
-		_, contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+		_, contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	
 	#debug
 #	cv2.drawContours(original,contours[0],-1,(0,0,255),1)
@@ -54,12 +54,12 @@ def createTemplateShape ():
 
 def processFrameForCamera(frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	lower = np.array([45,45,0])
-	upper = np.array([55,255,255])
+	lower = np.array([50,25,40])
+	upper = np.array([65,255,255])
 	mask = cv2.inRange(frame, lower, upper)
 	frame = cv2.bitwise_and(frame, frame, mask = mask)
-	kernel = np.ones((3, 3), np.uint8)
-	#frame = cv2.erode(frame, kernel, iterations = 1)
+	kernel = np.ones((1, 1), np.uint8)
+	frame = cv2.erode(frame, kernel, iterations = 1)
 	frame = cv2.dilate(frame, kernel, iterations = 1)
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	return frame
@@ -77,46 +77,40 @@ def processFrameForTrainingImages(frame):
 def getGreenLight (original, templateShape, processingFunction):
 
 	frame = processingFunction(original)
-	cv2.imshow('frame',frame)
+
 	if isPi:
 		contours, _ = cv2.findContours(frame,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	else:
-		_, contours, _ = cv2.findContours(frame,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		_, contours, _ = cv2.findContours(frame,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	
-	probableContours = list(filter(lambda x: x.size > 10, contours))
-	matches = list(map(lambda x: (x, cv2.matchShapes(x, templateShape, cv2.cv.CV_CONTOURS_MATCH_I3, 1)), probableContours))
+	probableContours = list(filter(lambda x: x.size > 50, contours))
+	matches = list(map(lambda x: (x, cv2.matchShapes(x, templateShape, 1, 0.0)), probableContours))
 	matches.sort(key = lambda x: x[1])
 	
 	#debug
-	if len(matches) > 0:# and matches[0][1] < 1:
+	if len(matches) > 0 and matches[0][1] < 0.5:
 		bestContours = list(map(lambda x: x[0], matches[:1]))
-		print(matches[0][1])
-#		M = cv2.moments(bestContours[0])
-#		cX = int(M['m10'] / M['m00'])
-#		cY = int(M['m01'] / M['m00'])
-#		currXY = (cX,cY)
-
-#		for i in range(len(coordinates)-1):
-#			coordinates[i+1] = coordinates[i]
-#		coordinates[0] = currXY
+		M = cv2.moments(bestContours[0])
+		cX = int(M['m10'] / M['m00'])
+		cY = int(M['m01'] / M['m00'])
+		currXY = (cX,cY)
+		for i in range(len(coordinates)-1):
+			coordinates[i+1] = coordinates[i]
+		coordinates[0] = currXY
 		
-#		avgX = sum(map(lambda (x,y): x, coordinates))*1.0 / len(coordinates)
-#		avgY = sum(map(lambda (x,y): y, coordinates))*1.0 / len(coordinates)
-#		distance = math.hypot(currXY[0] - avgX, currXY[1] - avgY)
-		
-#		if distance < 25:
+		avgX = float(sum(map(lambda (x,y): x, coordinates)) / len(coordinates))
+		avgY = float(sum(map(lambda (x,y): y, coordinates)) / len(coordinates))#		distance = math.hypot(currXY[0] - avgX, currXY[1] - avgY)
+#		if distance > 50:
+#			return False 
 		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
-			
 	cv2.imshow('coloredOriginal', original)
 
 	if len(matches) > 0:
-		if matches[0][1] < 1: # and distance < 25:
+		if matches[0][1] < 0.5:
 			return True
 		else:
-#			cv2.imshow('nomatch',original)
 			return False
 	else:
-#		cv2.imshow('nomatch',original)
 		return False
 
 
@@ -135,11 +129,8 @@ def actionOnNotFound ():
 cap = cv2.VideoCapture(0)
 templateShape = createTemplateShape()
 
-smoothing = [0] * 20
-#t_dur = time.time() + 5
-#counter = 0
-while(True):# and time.time() < t_dur):
-#	counter = counter + 1
+smoothing = [0] * 15
+while(True):
 	_, frame = cap.read()
 	isGreenLight = getGreenLight(frame, templateShape, processFrameForCamera)
 
@@ -152,7 +143,7 @@ while(True):# and time.time() < t_dur):
 	
 	if isSmooth:
 		actionOnGreenLight()
-#		time.sleep(0.2)
+#		time.sleep(0.5)
 	else:
 		actionOnNotFound()
 
@@ -162,5 +153,4 @@ while(True):# and time.time() < t_dur):
 		buzzer.cleanup()
 	    	break
 
-#print('counter = ' + str(counter))
 cv2.destroyAllWindows()
