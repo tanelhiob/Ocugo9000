@@ -166,6 +166,6 @@ while(True):# and time.time() < t_dur):
 	    	break
 
 #print('counter = ' + str(counter))
-#cap.set(cv2.cv.CV_CAP_PROP_SETTINGS,0.0);
+cap.set(cv2.cv.CV_CAP_PROP_SETTINGS,0.0);
 cv2.VideoCapture(0).release()
 cv2.destroyAllWindows()
