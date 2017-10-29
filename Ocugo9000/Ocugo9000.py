@@ -54,7 +54,7 @@ def createTemplateShape ():
 
 def processFrameForCamera(frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	lower = np.array([45,45,0])
+	lower = np.array([45,45,20])
 	upper = np.array([55,255,255])
 	mask = cv2.inRange(frame, lower, upper)
 	frame = cv2.bitwise_and(frame, frame, mask = mask)
@@ -77,20 +77,20 @@ def processFrameForTrainingImages(frame):
 def getGreenLight (original, templateShape, processingFunction):
 
 	frame = processingFunction(original)
-	cv2.imshow('frame',frame)
+#	cv2.imshow('frame',frame)
 	if isPi:
 		contours, _ = cv2.findContours(frame,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	else:
 		_, contours, _ = cv2.findContours(frame,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 	
-	probableContours = list(filter(lambda x: x.size > 10, contours))
+	probableContours = list(filter(lambda x: x.nbytes > 100, contours))
 	matches = list(map(lambda x: (x, cv2.matchShapes(x, templateShape, cv2.cv.CV_CONTOURS_MATCH_I3, 1)), probableContours))
 	matches.sort(key = lambda x: x[1])
 	
 	#debug
 	if len(matches) > 0:# and matches[0][1] < 1:
 		bestContours = list(map(lambda x: x[0], matches[:1]))
-		print(matches[0][1])
+#		print(matches[0][1])
 #		M = cv2.moments(bestContours[0])
 #		cX = int(M['m10'] / M['m00'])
 #		cY = int(M['m01'] / M['m00'])
@@ -105,12 +105,12 @@ def getGreenLight (original, templateShape, processingFunction):
 #		distance = math.hypot(currXY[0] - avgX, currXY[1] - avgY)
 		
 #		if distance < 25:
-		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
+#		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
 			
-	cv2.imshow('coloredOriginal', original)
+#	cv2.imshow('coloredOriginal', original)
 
 	if len(matches) > 0:
-		if matches[0][1] < 1: # and distance < 25:
+		if matches[0][1] < 0.41: # and distance < 25:
 			return True
 		else:
 #			cv2.imshow('nomatch',original)
@@ -133,6 +133,8 @@ def actionOnNotFound ():
 
 
 cap = cv2.VideoCapture(0)
+cap.set(12, 0.5)
+#cap.set(13, 25)
 templateShape = createTemplateShape()
 
 smoothing = [0] * 20
@@ -148,8 +150,9 @@ while(True):# and time.time() < t_dur):
 		smoothing[i+1] = smoothing[i]
 	smoothing[0] = isGreenLight
 		
-	isSmooth = round((float(sum(smoothing)) / len(smoothing)),0) == 1  
-	
+	average = round((float(sum(smoothing)) / len(smoothing)),0)  
+#	print(average)
+	isSmooth = average == 1
 	if isSmooth:
 		actionOnGreenLight()
 #		time.sleep(0.2)
@@ -163,4 +166,6 @@ while(True):# and time.time() < t_dur):
 	    	break
 
 #print('counter = ' + str(counter))
+#cap.set(cv2.cv.CV_CAP_PROP_SETTINGS,0.0);
+cv2.VideoCapture(0).release()
 cv2.destroyAllWindows()
