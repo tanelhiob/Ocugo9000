@@ -132,7 +132,13 @@ def actionOnNotFound ():
 	return
 
 
-cap = cv2.VideoCapture(0)
+empty = ""
+camNr = 0
+if len(sys.argv) > 1:
+	camNr = int(sys.argv[1])
+
+cap = cv2.VideoCapture(int(camNr))
+
 cap.set(4, 1024)
 cap.set(5, 1024)
 cap.set(12, 0.5)
@@ -165,7 +171,7 @@ while(True):# and time.time() < t_dur):
 	if k == 27:
 		buzzer.stop()
 		buzzer.cleanup()
-	    	break
+		break
 
 #print('counter = ' + str(counter))
 cap.set(cv2.cv.CV_CAP_PROP_SETTINGS,0.0);
