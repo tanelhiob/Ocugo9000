@@ -21,7 +21,7 @@ isPi =  not platform.system() == 'Windows'
 red = (0, 0, 255)
 green = (0, 255, 0)
 
-buzzer = Buzzer(18, 50, 1, 0.5)
+buzzer = Buzzer(18, 432, 1, 0.5)
 #coordinates = [(0,0)] * 10
 
 def createTemplateShape ():
@@ -54,12 +54,12 @@ def createTemplateShape ():
 
 def processFrameForCamera(frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	lower = np.array([45,45,20])
-	upper = np.array([55,255,255])
+	lower = np.array([45,20,100])
+	upper = np.array([85,255,250])
 	mask = cv2.inRange(frame, lower, upper)
 	frame = cv2.bitwise_and(frame, frame, mask = mask)
-	kernel = np.ones((3, 3), np.uint8)
-	#frame = cv2.erode(frame, kernel, iterations = 1)
+	kernel = np.ones((1, 1), np.uint8)
+	frame = cv2.erode(frame, kernel, iterations = 1)
 	frame = cv2.dilate(frame, kernel, iterations = 1)
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	return frame
@@ -77,9 +77,9 @@ def processFrameForTrainingImages(frame):
 def getGreenLight (original, templateShape, processingFunction):
 
 	frame = processingFunction(original)
-#	cv2.imshow('frame',frame)
+	cv2.imshow('frame',frame)
 	if isPi:
-		contours, _ = cv2.findContours(frame,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+		contours, _ = cv2.findContours(frame,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 	else:
 		_, contours, _ = cv2.findContours(frame,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 	
@@ -105,9 +105,9 @@ def getGreenLight (original, templateShape, processingFunction):
 #		distance = math.hypot(currXY[0] - avgX, currXY[1] - avgY)
 		
 #		if distance < 25:
-#		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
+		cv2.drawContours(original, bestContours,-1,(0,0,255),1)
 			
-#	cv2.imshow('coloredOriginal', original)
+	cv2.imshow('coloredOriginal', original)
 
 	if len(matches) > 0:
 		if matches[0][1] < 0.41: # and distance < 25:
@@ -133,6 +133,8 @@ def actionOnNotFound ():
 
 
 cap = cv2.VideoCapture(0)
+cap.set(4, 1024)
+cap.set(5, 1024)
 cap.set(12, 0.5)
 #cap.set(13, 25)
 templateShape = createTemplateShape()
